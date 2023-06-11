@@ -18,7 +18,7 @@ void searchForString(const std::filesystem::path& filePath, const string& search
   ifstream file(filePath);
   string line;
   int lineNumber = 0;
-  
+
   while (getline(file, line)) {
     lineNumber++;
     if (line.find(searchString) != string::npos) {
@@ -33,7 +33,7 @@ void searchForString(const std::filesystem::path& filePath, const string& search
 void processDirectory(const std::filesystem::path& directoryPath, const string& searchString) {
   for (const auto& entry : std::filesystem::recursive_directory_iterator(directoryPath)) {
     const auto& path = entry.path();
-    
+
     if (std::filesystem::is_regular_file(path)) {
       searchForString(path, searchString);
     }
@@ -41,25 +41,18 @@ void processDirectory(const std::filesystem::path& directoryPath, const string& 
 }
 
 int main(int argc, char *args[]) {
-  string directoryPathStr;
+  if (argc == 1) { cout << "This is a Password Checker. This Code will search the current directory you are in for all files where a specific key appears."; return 0; }
 
-  cout << "Enter directory: ";
-  cin >> directoryPathStr;
+  string searchString = args[1];
+  std::filesystem::path directoryPath = std::filesystem::current_path();
 
+  logger.Info("Searching directory: " + directoryPath.string() + " for key: " + searchString);
 
-  std::filesystem::path directoryPath(directoryPathStr);
-  string searchString = "";
-
-  cout << "Enter key: ";
-  cin >> searchString;
-
-  logger.Info("Searching directory: " + directoryPathStr + " for key: " + searchString);
-  
   if (!std::filesystem::exists(directoryPath) || !std::filesystem::is_directory(directoryPath)) {
     cerr << "Invalid directory path." << endl;
     return 1;
   }
-  
+
   processDirectory(directoryPath, searchString);
 
   cout << "----------------------------- RESULT ------------------------------" << endl;
@@ -67,11 +60,6 @@ int main(int argc, char *args[]) {
     logger.Found("file: " + paths[i] + ", line number: " + to_string(line_number[i]));
   }
   cout << "----------------------------- DONE --------------------------------" << endl;
-  
+
   return 0;
 }
-
-
-
-
-
